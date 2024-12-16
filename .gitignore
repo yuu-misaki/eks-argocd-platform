@@ -1,0 +1,10 @@
+.venv
+.env
+archive/*
+
+.vscode
+
+.terraform.lock.hcl
+.terraform
+
+temp/*

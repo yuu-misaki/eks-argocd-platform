@@ -1,0 +1,38 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  namespace: fastapi
+  labels:
+    app.kubernetes.io/name: LoadBalancerController
+  name: alb
+spec:
+  controller: eks.amazonaws.com/alb
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: fastapi
+  name: ingress-fastapi
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/load-balancer-name: shared-alb
+    # httpsの設定
+    alb.ingress.kubernetes.io/certificate-arn: <ACM_ARN> # ACM証明書ARNを指定
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443" # HTTPSへのリダイレクトを有効化
+
+spec:
+  ingressClassName: alb
+  rules:
+    - host: fastapi.yu-min3.com
+      http:
+        paths:
+          - path: /app1/
+            pathType: Prefix
+            backend:
+              service:
+                name: sample-fastapi-service
+                port:
+                  number: 80
